@@ -1,0 +1,59 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- ActiveMQ connection factory -->
+	<bean id="amqConnectionFactory"
+		class="org.apache.activemq.ActiveMQConnectionFactory">
+		<constructor-arg index="0" value="${JMS.BROKER.URL}" />
+	</bean>
+
+	<!-- ConnectionFactory Definition -->
+	<bean id="connectionFactory"
+		class="org.springframework.jms.connection.CachingConnectionFactory">
+		<constructor-arg ref="amqConnectionFactory" />
+	</bean>
+
+	<!-- Destination Queue -->
+	<bean id="destinationQueue"
+		class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg index="0"
+			value="${JMS.NEW.APP.QUEUE.2}" />
+	</bean>
+
+	<!-- JmsTemplate Definition -->
+	<bean id="jmsTemplate"
+		class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory">
+			<bean
+				class="org.springframework.jms.connection.SingleConnectionFactory">
+				<property name="targetConnectionFactory"
+					ref="connectionFactory" />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Message Producer -->
+	<bean id="messageProducer"
+		class="com.roytuts.spring.jms.activemq.point.to.point.producer.MessageProducer">
+		<property name="jmsTemplate" ref="jmsTemplate" />
+		<property name="defaultDestination" ref="destinationQueue" />
+	</bean>
+
+	<!-- Message Consumer from Default Destination -->
+	<bean id="messageDefaultConsumer"
+		class="com.roytuts.spring.jms.activemq.point.to.point.consumer.MessageConsumer">
+		<property name="messageProducer" ref="messageProducer"></property>
+	</bean>
+
+	<!-- Message Consumer Container for Default Destination -->
+	<bean
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="destinationName"
+			value="${JMS.NEW.APP.QUEUE.1}" />
+		<property name="messageListener" ref="messageDefaultConsumer" />
+		<property name="concurrentConsumers" value="2" />
+	</bean>
+</beans>

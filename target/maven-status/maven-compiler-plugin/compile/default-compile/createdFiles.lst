@@ -1,0 +1,5 @@
+com\roytuts\spring\jms\activemq\point\to\point\producer\MessageProducer.class
+com\blog\spring\jms\TestMessageListener.class
+com\blog\spring\jms\TestMessageSender.class
+com\roytuts\spring\jms\activemq\point\to\point\consumer\MessageConsumer.class
+SpringJmsActiveMqPointToPointApp.class
